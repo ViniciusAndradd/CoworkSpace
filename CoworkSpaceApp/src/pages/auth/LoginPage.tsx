@@ -30,8 +30,8 @@ export default function LoginPage() {
       setLoading(true);
       setError('');
       const response = await api.post<AuthResponse>('/auth/login', data);
-      const { token, name, email, role } = response.data;
-      login(token, { name, email, role });
+      const { token, id, name, email, phone, role } = response.data;
+      login(token, { id, name, email, phone, role });
       navigate('/rooms');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao fazer login.');

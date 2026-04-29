@@ -15,6 +15,8 @@ export interface Amenity {
 
 export interface Room {
   id: string;
+  ownerId: string;
+  ownerName: string;
   name: string;
   type: string;
   location: string;
@@ -50,5 +52,14 @@ export interface AuthResponse {
 export interface AuthUser {
   name: string;
   email: string;
+  role: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
   role: string;
 }

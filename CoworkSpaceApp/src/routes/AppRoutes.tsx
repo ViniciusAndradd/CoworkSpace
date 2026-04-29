@@ -5,9 +5,15 @@ import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import RoomsPage from '../pages/rooms/RoomsPage';
 import RoomDetailPage from '../pages/rooms/RoomDetailPage';
+import RoomFormPage from '../pages/rooms/RoomFormPage';
+import MyRoomsPage from '../pages/rooms/MyRoomsPage';
 import BookingsPage from '../pages/bookings/BookingsPage';
+import MyRoomsBookingsPage from '../pages/bookings/MyRoomsBookingsPage';
 import AdminRoomsPage from '../pages/admin/AdminRoomsPage';
 import AdminBookingsPage from '../pages/admin/AdminBookingsPage';
+import ProfilePage from '../pages/profile/ProfilePage';
+
+
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { token } = useAuthStore();
@@ -28,12 +34,19 @@ export default function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/rooms" element={<PrivateRoute><RoomsPage /></PrivateRoute>} />
-        <Route path="/rooms/:id" element={<PrivateRoute><RoomDetailPage /></PrivateRoute>} />
+        <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/rooms/:id" element={<RoomDetailPage />} />
+        <Route path="/rooms/new" element={<PrivateRoute><RoomFormPage /></PrivateRoute>} />
+        <Route path="/rooms/:id/edit" element={<PrivateRoute><RoomFormPage /></PrivateRoute>} />
+        <Route path="/rooms/my" element={<PrivateRoute><MyRoomsPage /></PrivateRoute>} />
+
         <Route path="/bookings" element={<PrivateRoute><BookingsPage /></PrivateRoute>} />
+        <Route path="/bookings/my-rooms" element={<PrivateRoute><MyRoomsBookingsPage /></PrivateRoute>} />
 
         <Route path="/admin/rooms" element={<AdminRoute><AdminRoomsPage /></AdminRoute>} />
         <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
+
+        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
 
         <Route path="*" element={<Navigate to="/rooms" />} />
       </Routes>
