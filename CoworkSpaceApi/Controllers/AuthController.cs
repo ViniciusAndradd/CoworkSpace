@@ -40,7 +40,8 @@ namespace CoworkSpaceApi.Controllers
             await _context.SaveChangesAsync();
 
             var token = _jwtHelper.GenerateToken(user);
-            return Ok(new AuthResponse(token, user.Name, user.Email, user.Role));
+            return Ok(new AuthResponse(token, user.Id, user.Name, user.Email, user.Phone, user.Role));
+
         }
 
         [HttpPost("login")]
@@ -51,7 +52,8 @@ namespace CoworkSpaceApi.Controllers
                 return Unauthorized(new { message = "Email ou senha inválidos." });
 
             var token = _jwtHelper.GenerateToken(user);
-            return Ok(new AuthResponse(token, user.Name, user.Email, user.Role));
+            return Ok(new AuthResponse(token, user.Id, user.Name, user.Email, user.Phone, user.Role));
+
         }
     }
 }

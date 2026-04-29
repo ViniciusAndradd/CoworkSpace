@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CoworkSpaceApi.Data
 {
-    public class AppDbContext:DbContext
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -42,9 +42,17 @@ namespace CoworkSpaceApi.Data
                 .Property(r => r.PricePerDay)
                 .HasPrecision(10, 2);
 
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.Owner)
+                .WithMany()
+                .HasForeignKey(r => r.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Booking>()
                 .Property(b => b.TotalPrice)
                 .HasPrecision(10, 2);
+
+
         }
     }
 }

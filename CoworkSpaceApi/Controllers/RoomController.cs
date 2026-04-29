@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using CoworkSpaceApi.DTOs;
+﻿using CoworkSpaceApi.DTOs;
 using CoworkSpaceApi.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CoworkSpaceApi.Controllers
 {
@@ -18,9 +19,17 @@ namespace CoworkSpaceApi.Controllers
             _env = env;
         }
 
+        private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        private bool IsAdmin() => User.IsInRole("admin");
+
         [HttpGet]
         public async Task<IActionResult> GetAll() =>
             Ok(await _roomService.GetAllAsync());
+
+        [HttpGet("my")]
+        [Authorize]
+        public async Task<IActionResult> GetMyRooms() =>
+            Ok(await _roomService.GetByOwnerAsync(GetUserId()));
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
@@ -30,57 +39,48 @@ namespace CoworkSpaceApi.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> Create(CreateRoomRequest request)
         {
-            var room = await _roomService.CreateAsync(request);
+            var room = await _roomService.CreateAsync(GetUserId(), request);
             return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, UpdateRoomRequest request)
         {
-            var room = await _roomService.UpdateAsync(id, request);
-            return room is null ? NotFound() : Ok(room);
+            var (room, error) = await _roomService.UpdateAsync(id, GetUserId(), IsAdmin(), request);
+            if (error is not null) return error == "Sala não encontrada." ? NotFound() : Forbid();
+            return Ok(room);
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = await _roomService.DeleteAsync(id);
-            return deleted ? NoContent() : NotFound();
+            var (success, error) = await _roomService.DeleteAsync(id, GetUserId(), IsAdmin());
+            if (error is not null) return error == "Sala não encontrada." ? NotFound() : Forbid();
+            return NoContent();
         }
 
         [HttpPost("{id}/images")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> UploadImage(Guid id, IFormFile file, [FromQuery] int order = 0)
         {
-            if (file.Length == 0)
-                return BadRequest(new { message = "Arquivo inválido." });
-
-            var uploadsFolder = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "rooms", id.ToString());
-            Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await file.CopyToAsync(stream);
-
-            var url = $"/uploads/rooms/{id}/{fileName}";
-            await _roomService.AddImageAsync(id, url, order);
-
+            if (file.Length == 0) return BadRequest(new { message = "Arquivo inválido." });
+            var (url, error) = await _roomService.AddImageAsync(id, GetUserId(), IsAdmin(), file, order, _env);
+            if (error is not null) return error == "Sala não encontrada." ? NotFound() : Forbid();
             return Ok(new { url });
         }
 
         [HttpDelete("images/{imageId}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteImage(Guid imageId)
         {
-            var deleted = await _roomService.DeleteImageAsync(imageId);
-            return deleted ? NoContent() : NotFound();
+            var (success, error) = await _roomService.DeleteImageAsync(imageId, GetUserId(), IsAdmin());
+            if (error is not null) return error == "Imagem não encontrada." ? NotFound() : Forbid();
+            return NoContent();
         }
     }
 }

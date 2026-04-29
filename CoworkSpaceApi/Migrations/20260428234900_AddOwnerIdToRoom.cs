@@ -1,0 +1,51 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace CoworkSpaceApi.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddOwnerIdToRoom : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<Guid>(
+                name: "OwnerId",
+                table: "Rooms",
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_OwnerId",
+                table: "Rooms",
+                column: "OwnerId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Rooms_Users_OwnerId",
+                table: "Rooms",
+                column: "OwnerId",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Rooms_Users_OwnerId",
+                table: "Rooms");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Rooms_OwnerId",
+                table: "Rooms");
+
+            migrationBuilder.DropColumn(
+                name: "OwnerId",
+                table: "Rooms");
+        }
+    }
+}

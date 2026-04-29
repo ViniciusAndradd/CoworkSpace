@@ -46,5 +46,13 @@ namespace CoworkSpaceApi.Controllers
             var deleted = await _userService.DeleteAsync(id);
             return deleted ? NoContent() : NotFound();
         }
+
+        [HttpPatch("{id}/password")]
+        public async Task<IActionResult> ChangePassword(Guid id, ChangePasswordRequest request)
+        {
+            var (success, error) = await _userService.ChangePasswordAsync(id, request);
+            if (error is not null) return BadRequest(new { message = error });
+            return NoContent();
+        }
     }
 }
