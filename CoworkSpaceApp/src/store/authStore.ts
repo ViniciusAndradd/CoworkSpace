@@ -1,10 +1,15 @@
 import { create } from 'zustand';
 import { type AuthUser } from '../types';
 
+interface AuthUserWithId extends AuthUser {
+  id: string;
+  phone: string;
+}
+
 interface AuthState {
   token: string | null;
-  user: AuthUser | null;
-  login: (token: string, user: AuthUser) => void;
+  user: AuthUserWithId | null;
+  login: (token: string, user: AuthUserWithId) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
   isAdmin: () => boolean;

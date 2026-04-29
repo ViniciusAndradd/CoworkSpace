@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Grid, Card, CardContent, CardMedia, CardActionArea,
-  Typography, Chip, CircularProgress, Alert
+  Typography, Chip, CircularProgress, Alert, Button
 } from '@mui/material';
-import { People, AttachMoney, LocationOn } from '@mui/icons-material';
+import { People, AttachMoney, LocationOn, Add } from '@mui/icons-material';
 import Navbar from '../../components/Navbar';
 import api from '../../api/axios';
 import { type Room } from '../../types';
+import useAuthStore from '../../store/authStore';
 
 export default function RoomsPage() {
   const navigate = useNavigate();
+  const { token } = useAuthStore();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,9 +35,16 @@ export default function RoomsPage() {
     <>
       <Navbar />
       <Box sx={{ p: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3 }}>
-          Salas disponíveis
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            Salas disponíveis
+          </Typography>
+          {token && (
+            <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/rooms/new')}>
+              Anunciar sala
+            </Button>
+          )}
+        </Box>
 
         {loading && <CircularProgress />}
         {error && <Alert severity="error">{error}</Alert>}
@@ -92,6 +101,10 @@ export default function RoomsPage() {
                         )}
                       </Box>
                     )}
+
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      Anunciado por {room.ownerName}
+                    </Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>

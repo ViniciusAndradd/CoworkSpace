@@ -36,8 +36,8 @@ export default function RegisterPage() {
       setLoading(true);
       setError('');
       const response = await api.post<AuthResponse>('/auth/register', data);
-      const { token, name, email, role } = response.data;
-      login(token, { name, email, role });
+      const { token, id, name, email, phone, role } = response.data;
+      login(token, { id, name, email, phone, role });
       navigate('/rooms');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao cadastrar.');
