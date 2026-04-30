@@ -13,4 +13,9 @@
         string Name,
         string Phone
     );
+
+    public record ChangePasswordRequest(
+    string CurrentPassword,
+    string NewPassword
+);
 }

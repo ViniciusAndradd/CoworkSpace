@@ -48,5 +48,18 @@ namespace CoworkSpaceApi.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<(bool success, string? error)> ChangePasswordAsync(Guid id, ChangePasswordRequest request)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user is null) return (false, "Usuário não encontrado.");
+
+            if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+                return (false, "Senha atual incorreta.");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            await _context.SaveChangesAsync();
+            return (true, null);
+        }
     }
 }
